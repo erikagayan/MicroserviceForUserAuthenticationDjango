@@ -1,6 +1,7 @@
-from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext as _
+from django.core.exceptions import ValidationError
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 
 class UserManager(BaseUserManager):
@@ -59,6 +60,13 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+    def clean(self):
+        super().clean()
+
+        # addition email validation
+        if self.email and not self.email.endswith('@example.com'):
+            raise ValidationError(_('Email address must be from the example.com domain'))
 
     class Meta:
         verbose_name = _("user")
