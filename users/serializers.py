@@ -1,21 +1,17 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .validators import CustomPasswordValidator
+from django.contrib.auth.password_validation import validate_password
 
 
 class UserSerializer(serializers.ModelSerializer):
-    password_validator = CustomPasswordValidator()
-
     class Meta:
         model = get_user_model()
         fields = ("id", "username", "email", "password")
         extra_kwargs = {"password": {"write_only": True}}
 
-    def validate_password(self, value):
-        # Use our custom validator to validate the password
-        errors = self.password_validator.validate_password(value)
-        if errors:
-            raise serializers.ValidationError(errors)
+    @staticmethod
+    def validate_password(value):
+        validate_password(value)
         return value
 
     def create(self, validated_data):
