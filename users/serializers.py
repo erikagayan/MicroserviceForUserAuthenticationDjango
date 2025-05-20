@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
@@ -17,29 +18,27 @@ class UserSerializer(serializers.ModelSerializer):
         validate_password(value)
         return value
 
-    def create(self, validated_data):
-        try:
-            user = User.objects.create_user(
-                username=validated_data["username"],
-                email=validated_data["email"],
-                password=validated_data["password"],
-                is_moderator=validated_data.get("is_moderator", False),
-                is_manager=validated_data.get("is_manager", False)
-            )
-            return user
-        except Exception as e:
-            raise serializers.ValidationError({"detail": str(e)})
+    def create(self, validated_data: Dict[str, Any]) -> User:
+        user = User.objects.create_user(
+            username=validated_data["username"],
+            email=validated_data["email"],
+            password=validated_data["password"],
+            # Write your field
+            is_moderator=validated_data.get("is_moderator", False),
+            is_manager=validated_data.get("is_manager", False)
+        )
+        return user
 
-    def update(self, instance, validated_data):
+    def update(self, instance: User, validated_data: Dict[str, Any]) -> User:
         password = validated_data.pop("password", None)
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
-        if password:
+        if password is not None:
+            validate_password(password, instance)
             instance.set_password(password)
-        try:
-            instance.save()
-        except Exception as e:
-            raise serializers.ValidationError({"detail": str(e)})
 
+        instance.save()
         return instance
+
