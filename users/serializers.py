@@ -30,15 +30,17 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance: User, validated_data: Dict[str, Any]) -> User:
+        # Extracts password, removes it from dictionary
         password = validated_data.pop("password", None)
 
+        # Remaining keys and values
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
+        # Check password
         if password is not None:
             validate_password(password, instance)
             instance.set_password(password)
 
         instance.save()
         return instance
-

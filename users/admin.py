@@ -13,6 +13,7 @@ class UserAdmin(DjangoUserAdmin):
         (_("Personal info"), {"fields": ("first_name", "last_name")}),
         (
             "Permissions",
+            # Write your field
             {"fields": ("is_moderator", "is_manager", "is_staff", "groups")},
         ),
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
