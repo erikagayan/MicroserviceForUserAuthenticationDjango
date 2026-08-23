@@ -1,10 +1,14 @@
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 from datetime import timedelta
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Use your SECRET KEY
-SECRET_KEY = ''
+SECRET_KEY = os.environ["SECRET_KEY"]
 
 DEBUG = True
 
