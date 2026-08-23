@@ -4,30 +4,24 @@ from django.contrib.auth.models import AbstractUser, UserManager
 
 
 class User(AbstractUser):
-    """User model"""
+    """Custom user model"""
 
-    # write any field
+    # Write your custom fields
     is_moderator = models.BooleanField(default=False)
     is_manager = models.BooleanField(default=False)
 
-    email = models.EmailField(gettext("email address"), unique=True)
-    username = models.CharField(gettext("username"), unique=True, max_length=150)
+    # Redefined email
+    email = models.EmailField(unique=True)
 
     # Email for auth
     USERNAME_FIELD = "email"
     # Required fields for creat superuser
     REQUIRED_FIELDS = ["username"]
 
-    # For this model you should use the custom UserManager
-    objects = UserManager()
-
     def __str__(self):
         return self.email
 
+    # If we create user in admin panel, normalize email
     def clean(self):
         super().clean()
         self.email = self.__class__.objects.normalize_email(self.email)
-
-    class Meta:
-        verbose_name = gettext("user")
-        verbose_name_plural = gettext("users")
