@@ -1,35 +1,29 @@
 from typing import Any, Dict
+from users.models import User
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-
-
-User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("id", "username", "email", "password")
-        extra_kwargs = {"password": {"write_only": True}}
+        extra_kwargs = {"password": {"write_only": True}}  # No password return in JSON
 
     @staticmethod
     def validate_password(value):
         validate_password(value)
         return value
 
-    def create(self, validated_data: Dict[str, Any]) -> User:
+    def create(self, validated_data) -> User:
         user = User.objects.create_user(
             username=validated_data["username"],
             email=validated_data["email"],
             password=validated_data["password"],
-            # Write your field
-            is_moderator=validated_data.get("is_moderator", False),
-            is_manager=validated_data.get("is_manager", False)
         )
         return user
 
-    def update(self, instance: User, validated_data: Dict[str, Any]) -> User:
+    def update(self, instance: User, validated_data) -> User:
         # Extracts password, removes it from dictionary
         password = validated_data.pop("password", None)
 
@@ -39,7 +33,6 @@ class UserSerializer(serializers.ModelSerializer):
 
         # Check password
         if password is not None:
-            validate_password(password, instance)
             instance.set_password(password)
 
         instance.save()
